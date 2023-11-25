@@ -1,10 +1,7 @@
 package com.example.demowithtests.util.mappers;
 
 import com.example.demowithtests.domain.Employee;
-import com.example.demowithtests.dto.EmployeeDeleteDto;
-import com.example.demowithtests.dto.EmployeeSaveDto;
-import com.example.demowithtests.dto.EmployeeReadDto;
-import com.example.demowithtests.dto.EmployeeUpdateDto;
+import com.example.demowithtests.dto.*;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -13,6 +10,8 @@ import java.util.List;
 public interface EmployeeMapper {
 
     EmployeeSaveDto toEmployeeDto(Employee employee);
+
+    EmployeeUAWomenDto toEmployeeUAWomenDto(Employee employee);
 
     EmployeeDeleteDto toDeleteEmployeeDto(Employee employee);
 

@@ -1,10 +1,7 @@
 package com.example.demowithtests.web;
 
 import com.example.demowithtests.domain.Employee;
-import com.example.demowithtests.dto.EmployeeDeleteDto;
-import com.example.demowithtests.dto.EmployeeSaveDto;
-import com.example.demowithtests.dto.EmployeeReadDto;
-import com.example.demowithtests.dto.EmployeeUpdateDto;
+import com.example.demowithtests.dto.*;
 import com.example.demowithtests.service.EmployeeService;
 import com.example.demowithtests.service.EmployeeServiceEM;
 import com.example.demowithtests.util.mappers.EmployeeMapper;
@@ -247,7 +244,7 @@ public class EmployeeController {
         return dto;
     }
 
-    @GetMapping("/users-Oleh-Ukraine")
+    @GetMapping("/users-Oleh/UA")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeReadDto> getAllOlehFromUkraine() {
         List<Employee> employees = employeeService.findAllUkrainianOleh();
@@ -255,9 +252,10 @@ public class EmployeeController {
         return dto;
     }
 
-    @GetMapping("/count-UA-women")
+    @GetMapping("/count/UA-women")
     @ResponseStatus(HttpStatus.OK)
-    public int getAllUAWomen(){
-        return employeeService.countAllUkrainianWomen();
+    public EmployeeUAWomenDto getAllUkraineWomen(){
+        int count = employeeService.countAllUkrainianWomen();
+        return new EmployeeUAWomenDto("Number of women in Ukraine", count);
     }
 }
