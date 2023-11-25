@@ -71,4 +71,8 @@ public interface EmployeeService {
 
     int countAllUkrainianWomen();
 
+    List<Employee> findAllItalyMario();
+
+    List<Employee> findAllDeletedBelarus();
+
 }

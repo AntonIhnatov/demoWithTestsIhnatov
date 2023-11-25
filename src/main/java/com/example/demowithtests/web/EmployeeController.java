@@ -216,10 +216,11 @@ public class EmployeeController {
         employeeService.createAndSave(employee);
         return "employee with name: " + employee.getName() + " saved!";
     }
-//(@RequestBody EmployeeUpdateDto employeeUpdateDto)
+
+    //(@RequestBody EmployeeUpdateDto employeeUpdateDto)
     @PatchMapping("/users/country/russia")
     @ResponseStatus(HttpStatus.OK)
-    public String changeEmployeeRussiaName(){
+    public String changeEmployeeRussiaName() {
         List<Employee> employee = employeeService.filterByCountry("Russian Federation");
         employeeMapper.toListEmployeeUpdateDto(employee);
         employeeService.updateRussianEmployeeByName(employee);
@@ -235,7 +236,7 @@ public class EmployeeController {
         return dto;
     }
 
-    @PutMapping ("/cansel-soft-users-russian")
+    @PutMapping("/cansel-soft-users-russian")
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeUpdateDto> activationEmployeeByCountry() {
         List<Employee> employees = employeeService.filterByCountry("Russian Federation");
@@ -254,8 +255,24 @@ public class EmployeeController {
 
     @GetMapping("/count/UA-women")
     @ResponseStatus(HttpStatus.OK)
-    public EmployeeUAWomenDto getAllUkraineWomen(){
+    public EmployeeUAWomenDto getAllUkraineWomen() {
         int count = employeeService.countAllUkrainianWomen();
         return new EmployeeUAWomenDto("Number of women in Ukraine", count);
+    }
+
+    @GetMapping("/users-Italy-Mario")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> getAllMarioFromItaly() {
+        List<Employee> employees = employeeService.findAllItalyMario();
+        List<EmployeeReadDto> dto = employeeMapper.toListEmployeeReadDto(employees);
+        return dto;
+    }
+
+    @GetMapping("/users-Belarus-deleted")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeReadDto> getAllDeletedBelarus() {
+        List<Employee> employees = employeeService.findAllDeletedBelarus();
+        List<EmployeeReadDto> dto = employeeMapper.toListEmployeeReadDto(employees);
+        return dto;
     }
 }

@@ -76,8 +76,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT COUNT(e) FROM Employee e WHERE e.gender = 'F' AND e.country = 'Ukraine'")
     int countAllUkrainianWomen();
 
+    @Query("SELECT e FROM Employee e WHERE e.name = 'Mario' AND e.country = 'Italy'")
+    Optional<List<Employee>> findAllItalyByNameMario();
 
-//    Optional<List<Employee>> countAllUkrainianWomen();
+    @Query("SELECT e FROM Employee e WHERE e.gender = 'M' AND e.country = 'Belarus' AND e.isDeleted = true")
+    Optional<List<Employee>> findAllDeletedBelarus();
 
 
     @Transactional

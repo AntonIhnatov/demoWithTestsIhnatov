@@ -287,4 +287,20 @@ public class EmployeeServiceBean implements EmployeeService {
     public int countAllUkrainianWomen() {
         return employeeRepository.countAllUkrainianWomen();
     }
+
+    @Override
+    public List<Employee> findAllItalyMario() {
+        var employeesMarioIT = employeeRepository.findAllItalyByNameMario()
+                .orElseThrow(() -> new EntityNotFoundException("Employees from Italy with name Mario not found!"));
+
+        return employeesMarioIT;
+
+    }
+
+    @Override
+    public List<Employee> findAllDeletedBelarus() {
+        var employeesDeletedBelarus = employeeRepository.findAllDeletedBelarus()
+                .orElseThrow(() -> new EntityNotFoundException("Deleted employees from Belarus not found!"));
+        return employeesDeletedBelarus;
+    }
 }
