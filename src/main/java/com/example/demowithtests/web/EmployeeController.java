@@ -247,17 +247,19 @@ public class EmployeeController {
         return dto;
     }
 
-    @GetMapping("/users-Oleh-Ukraine")
+    @GetMapping("/users-Italy-Mario")
     @ResponseStatus(HttpStatus.OK)
-    public List<EmployeeReadDto> getAllOlehFromUkraine() {
-        List<Employee> employees = employeeService.findAllUkrainianOleh();
+    public List<EmployeeReadDto> getAllMarioFromItaly() {
+        List<Employee> employees = employeeService.findAllItalyMario();
         List<EmployeeReadDto> dto = employeeMapper.toListEmployeeReadDto(employees);
         return dto;
     }
 
-    @GetMapping("/count-UA-women")
+    @GetMapping("/users-Belarus-deleted")
     @ResponseStatus(HttpStatus.OK)
-    public int getAllUAWomen(){
-        return employeeService.countAllUkrainianWomen();
+    public List<EmployeeReadDto> getAllDeletedBelarus(){
+        List<Employee> employees = employeeService.findAllDeletedBelarus();
+        List<EmployeeReadDto> dto = employeeMapper.toListEmployeeReadDto(employees);
+        return dto;
     }
 }

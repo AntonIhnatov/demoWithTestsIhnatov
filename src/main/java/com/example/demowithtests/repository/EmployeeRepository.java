@@ -70,20 +70,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query(value = "SELECT * FROM users WHERE country = 'Russian Federation'", nativeQuery = true)
     Optional<List<Employee>> findAllRussian();
 
-    @Query("SELECT e FROM Employee e WHERE e.name = 'Oleh' AND e.country = 'Ukraine'")
-    Optional<List<Employee>> findAllUkrainianByNameOleh();
+    @Query("SELECT e FROM Employee e WHERE e.name = 'Mario' AND e.country = 'Italy'")
+    Optional<List<Employee>> findAllItalyByNameMario();
 
-    @Query("SELECT COUNT(e) FROM Employee e WHERE e.gender = 'F' AND e.country = 'Ukraine'")
-    int countAllUkrainianWomen();
-
-
-//    Optional<List<Employee>> countAllUkrainianWomen();
-
+    @Query("SELECT e FROM Employee e WHERE e.gender = 'M' AND e.country = 'Belarus' AND e.isDeleted = true")
+    Optional<List<Employee>> findAllDeletedBelarus();
 
     @Transactional
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "INSERT INTO users(name, email, country, gender) VALUES (:name, :email, :country, :gender)", nativeQuery = true)
-    //Integer saveEmployee(String name, String email, String country, String gender);
     void saveEmployee(String name, String email, String country, String gender);
 
     @Transactional
