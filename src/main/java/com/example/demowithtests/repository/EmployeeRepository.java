@@ -54,7 +54,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("update Employee set name = ?1 where id = ?2")
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    void updateEmployeeByName(String name, Integer id);
+    Employee updateEmployeeByName(String name, Integer id);
 
     @NotNull
     Page<Employee> findAll(Pageable pageable);

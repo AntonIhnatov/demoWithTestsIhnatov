@@ -1,11 +1,14 @@
 package com.example.demowithtests.service;
 
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.repository.EmployeeRepository;
 import com.example.demowithtests.service.emailSevice.EmailSenderService;
 import com.example.demowithtests.util.annotations.entity.ActivateCustomAnnotations;
 import com.example.demowithtests.util.annotations.entity.Name;
 import com.example.demowithtests.util.annotations.entity.ToLowerCase;
+import com.example.demowithtests.util.exception.CountryNotSpecifiedException;
+import com.example.demowithtests.util.exception.GenderNotFoundException;
 import com.example.demowithtests.util.exception.ResourceNotFoundException;
 import com.example.demowithtests.util.exception.ResourceWasDeletedException;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +36,11 @@ public class EmployeeServiceBean implements EmployeeService {
     @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
     // @Transactional(propagation = Propagation.MANDATORY)
     public Employee create(Employee employee) {
+        if (employee.getGender() == null) {
+            throw new GenderNotFoundException("Gender is required for creating an employee. ");
+        } else if (employee.getCountry() == null || employee.getCountry().isEmpty()) {
+            throw new CountryNotSpecifiedException("You must specify an existing country. ");
+        }
         return employeeRepository.save(employee);
 //        return employeeRepository.saveAndFlush(employee);
     }
