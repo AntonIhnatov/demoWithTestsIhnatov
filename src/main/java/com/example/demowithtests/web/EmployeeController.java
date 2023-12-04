@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -117,12 +118,34 @@ public class EmployeeController {
         return dto;
     }
 
+//    @DeleteMapping("/users/{id}")
+//    public ResponseEntity<EmployeeDeleteDto> removeEmployeeById(@PathVariable Integer id) {
+//        Employee entity = employeeService.removeById(id);
+//        if (entity == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//
+//        EmployeeDeleteDto dto = employeeMapper.toDeleteEmployeeDto(entity);
+//        return ResponseEntity.noContent().build();
+//    }
+
     @DeleteMapping("/soft-users/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDeleteDto softRemoveEmployeeById(@PathVariable Integer id) {
         EmployeeDeleteDto dto = employeeMapper.toDeleteEmployeeDto(employeeService.softRemoveById(id));
         return dto;
     }
+
+//    @DeleteMapping("/soft-users/{id}")
+//    public ResponseEntity<EmployeeDeleteDto> softRemoveEmployeeById(@PathVariable Integer id) {
+//        Employee entity = employeeService.softRemoveById(id);
+//        if (entity == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//
+//        EmployeeDeleteDto dto = employeeMapper.toDeleteEmployeeDto(entity);
+//        return ResponseEntity.ok(dto);
+//    }
 
     @DeleteMapping("/users")
     @ResponseStatus(HttpStatus.NO_CONTENT)

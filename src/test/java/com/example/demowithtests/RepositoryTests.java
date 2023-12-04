@@ -8,11 +8,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,9 +43,30 @@ public class RepositoryTests {
 
         employeeRepository.save(employee);
 
-        Assertions.assertThat(employee.getId()).isGreaterThan(0);
-        Assertions.assertThat(employee.getId()).isEqualTo(1);
-        Assertions.assertThat(employee.getName()).isEqualTo("Mark");
+        assertThat(employee.getId()).isGreaterThan(0);
+
+        assertThat(employee.getId()).isEqualTo(1);
+
+        assertThat(employee.getName()).isEqualTo("Mark");
+
+        assertThat(employee.getCountry()).isEqualTo("England");
+
+        assertThat(employee.getGender()).isEqualTo(Gender.M);
+
+        assertThat(employee.getAddresses()).isNotEmpty();
+
+        Address address = employee.getAddresses().iterator().next();
+
+        assertThat(address.getCountry()).isEqualTo("UK");
+
+        Optional<Employee> savedEmployee = employeeRepository.findById(employee.getId());
+
+        assertThat(savedEmployee).isPresent();
+
+        assertThat(employeeRepository.findById(1)
+                        .map(Employee::getAddresses)
+                        .orElse(Collections.emptySet()))
+                .isNotEmpty();
     }
 
     @Test
@@ -55,8 +76,22 @@ public class RepositoryTests {
 
         var employee = employeeRepository.findById(1).orElseThrow();
 
-        Assertions.assertThat(employee.getId()).isEqualTo(1);
-        Assertions.assertThat(employee.getName()).isEqualTo("Mark");
+        assertThat(employee.getId()).isEqualTo(1);
+
+        assertThat(employee.getName()).isEqualTo("Mark");
+
+        assertThat(employee.getAddresses()).isNotEmpty();
+
+        assertThat(employee.getGender()).isEqualTo(Gender.M);
+
+        assertThat(employee.getCountry()).isEqualTo("England");
+
+        assertThat(employeeRepository.existsById(1)).isTrue();
+
+        assertThat(employeeRepository.findById(1)
+                        .map(Employee::getAddresses)
+                        .orElse(Collections.emptySet()))
+                .isNotEmpty();
     }
 
     @Test
@@ -66,8 +101,18 @@ public class RepositoryTests {
 
         var employeesList = employeeRepository.findAll();
 
-        Assertions.assertThat(employeesList.size()).isGreaterThan(0);
+        assertThat(employeesList.size()).isGreaterThan(0);
 
+        assertThat(employeesList).isNotEmpty();
+
+        assertThat(employeesList.size()).isEqualTo(1);
+
+        assertThat(employeesList)
+                .extracting(Employee::getId)
+                .doesNotHaveDuplicates();
+
+        List<Integer> ids = employeesList.stream().map(Employee::getId).collect(Collectors.toList());
+        assertThat(employeeRepository.findAllById(ids)).hasSameSizeAs(ids);
     }
 
     @Test
@@ -81,7 +126,13 @@ public class RepositoryTests {
         employee.setName("Martin");
         var employeeUpdated = employeeRepository.save(employee);
 
-        Assertions.assertThat(employeeUpdated.getName()).isEqualTo("Martin");
+        assertThat(employeeUpdated.getName()).isEqualTo("Martin");
+
+        //Проверка, что остальные поля сотрудника не изменились
+        assertThat(employeeUpdated)
+                .usingRecursiveComparison()
+                .ignoringFields("name")
+                .isEqualTo(employee);
 
     }
 
@@ -92,7 +143,17 @@ public class RepositoryTests {
 
         var employees = employeeRepository.findByGender(Gender.M.toString(), "UK");
 
+        assertThat(employees).isNotNull().isNotEmpty();
+
         assertThat(employees.get(0).getGender()).isEqualTo(Gender.M);
+
+        assertThat(employees.get(0).getGender()).isNotEqualTo(Gender.F);
+
+        assertThat(employees)
+                .extracting(Employee::getGender)
+                .containsOnly(Gender.M);
+
+
     }
 
     @Test
@@ -113,7 +174,77 @@ public class RepositoryTests {
             employeeNull = optionalEmployee.orElseThrow();
         }
 
-        Assertions.assertThat(employeeNull).isNull();
+        assertThat(employeeNull).isNull();
+
+        assertThat(optionalEmployee).isEmpty();
+
+        assertThat(optionalEmployee).isNotPresent();
+
+    }
+
+    @Test
+    @Order(7)
+    @Rollback(value = false)
+    @DirtiesContext
+    @DisplayName("Count all Ukrainian women-employees test")
+    public void testCountAllUkrainianWomen(){
+        var employee1 = Employee.builder()
+                .name("Olga")
+                .country("Ukraine")
+                .addresses(new HashSet<>(Set.of(
+                        Address.builder().country("UA").build())))
+                .gender(Gender.F)
+                .build();
+
+        var employee2 = Employee.builder()
+                .name("Natalia")
+                .country("Ukraine")
+                .addresses(new HashSet<>(Set.of(
+                        Address.builder().country("UA").build())))
+                .gender(Gender.F)
+                .build();
+
+        employeeRepository.saveAll(List.of(employee1, employee2));
+
+        int count = employeeRepository.countAllUkrainianWomen();
+
+        assertThat(count).isGreaterThanOrEqualTo(0);
+        assertThat(count).isEqualTo(2);
+        assertThat(count).isEven();
+        assertThat(count).isLessThanOrEqualTo(1000);
+
+    }
+
+    @Test
+    @Order(8)
+    @Rollback(value = false)
+    @DisplayName("Find all employees from Italy with name Mario test")
+    public void testFindAllItalyByNameMario() {
+
+        var employee1 = Employee.builder()
+                .name("Mario")
+                .country("Italy")
+                .build();
+
+        var employee2 = Employee.builder()
+                .name("Mario")
+                .country("Italy")
+                .build();
+
+        employeeRepository.saveAll(List.of(employee1, employee2));
+
+        Optional<List<Employee>> employeesOptional = employeeRepository.findAllItalyByNameMario();
+
+        assertThat(employeesOptional).isPresent();
+
+        List<Employee> employees = employeesOptional.orElseThrow();
+
+        assertThat(employees).hasSize(2);
+
+        assertThat(employees).allMatch(employee -> employee.getName().equals("Mario")
+                &&
+                employee.getCountry().equals("Italy"));
+
     }
 
 }

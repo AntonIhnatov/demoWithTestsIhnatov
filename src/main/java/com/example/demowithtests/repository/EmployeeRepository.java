@@ -25,8 +25,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @EntityGraph(type = EntityGraph.EntityGraphType.FETCH, attributePaths = "addresses")
     List<Employee> findByNameContaining(String name);
 
-
-
     @Query(value = "SELECT u.* FROM users u JOIN addresses a ON u.id = a.employee_id " +
             "WHERE u.gender = :gender AND a.country = :country", nativeQuery = true)
     /*@Query(value = "" +
@@ -81,7 +79,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     @Query("SELECT e FROM Employee e WHERE e.gender = 'M' AND e.country = 'Belarus' AND e.isDeleted = true")
     Optional<List<Employee>> findAllDeletedBelarus();
-
 
     @Transactional
     @Modifying(flushAutomatically = true, clearAutomatically = true)
