@@ -49,7 +49,20 @@ public class LoaderServiceBean implements LoaderService {
             String country = faker.country().name();
             String email = faker.name().name();
 
-            Set<Address> addresses = Set.copyOf(Arrays.asList(new Address(), new Address()));
+            Set<Address> addresses = Set.copyOf(
+                    Arrays.asList(
+                            Address.builder()
+                                    .country(faker.address().country())
+                                    .city(faker.address().city())
+                                    .street(faker.address().streetAddress())
+                                    .addressHasActive(Boolean.valueOf(faker.address().streetAddress(false)))
+                                    .build(),
+                            Address.builder()
+                                    .country(faker.address().country())
+                                    .city(faker.address().city())
+                                    .street(faker.address().streetAddress())
+                                    .addressHasActive(Boolean.valueOf(faker.address().streetAddress(true)))
+                                    .build()));
 
             Employee employee = Employee
                     .builder()
