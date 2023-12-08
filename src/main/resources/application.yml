@@ -22,11 +22,15 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     #open-in-view: false
     #generate-ddl: true
-  flyway:
-    #    locations: filesystem:.\src\main\resources\db\migration
+#  flyway:
+#    #    locations: filesystem:.\src\main\resources\db\migration
+#    enabled: true
+#    #    clean-disabled: true
+#    baseline-on-migrate: true
+
+  liquibase:
     enabled: true
-    #    clean-disabled: true
-    baseline-on-migrate: true
+    change-log: db/changelog/db.changelog-master.yml
 #  security:
 #    user:
 #      name: admin

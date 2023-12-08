@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/001-initial-schema.sql
+  - include:
+      file: db/changelog/002-added-gender-to-employee.sql
+  - include:
+      file: db/changelog/003-updated-check-trigger.sql
