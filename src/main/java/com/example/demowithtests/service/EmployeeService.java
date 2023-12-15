@@ -1,5 +1,6 @@
 package com.example.demowithtests.service;
 
+import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,12 @@ public interface EmployeeService {
 
     Employee create(Employee employee);
     void createAndSave(Employee employee);
+
+    void addDocumentAndHistory(Employee employee, Document document);
+
+    Employee deleteDocumentByUserId(Integer id);
+
+    Employee restoreDocumentByUserId(Integer id);
 
     List<Employee> getAll();
 

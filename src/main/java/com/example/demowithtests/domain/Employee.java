@@ -2,6 +2,7 @@ package com.example.demowithtests.domain;
 
 import com.example.demowithtests.util.annotations.entity.Name;
 import com.example.demowithtests.util.annotations.entity.ToLowerCase;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,8 +38,9 @@ public final class Employee {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @OneToOne  (cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id", referencedColumnName = "id")
+    @JsonIgnore
     private Document document;
 
     @Column(name = "is_deleted")

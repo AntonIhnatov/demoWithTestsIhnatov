@@ -1,5 +1,7 @@
 package com.example.demowithtests.web;
 
+import com.example.demowithtests.domain.ActionType;
+import com.example.demowithtests.domain.DocumentHistory;
 import com.example.demowithtests.domain.Employee;
 import com.example.demowithtests.dto.*;
 import com.example.demowithtests.service.EmployeeService;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,10 +53,28 @@ public class EmployeeController {
     public EmployeeSaveDto saveEmployee(@RequestBody @Valid EmployeeSaveDto requestForSave) {
         log.debug("saveEmployee() - start: requestForSave = {}", requestForSave.name());
         var employee = employeeMapper.toEmployee(requestForSave);
+
+        if (employee.getDocument() != null) {
+           employeeService.addDocumentAndHistory(employee, employee.getDocument());
+        }
+
         var dto = employeeMapper.toEmployeeDto(employeeService.create(employee));
         log.debug("saveEmployee() - stop: dto = {}", dto.name());
         return dto;
     }
+
+    @DeleteMapping("/delete-document/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Employee deleteDocumentByUserId(@PathVariable Integer id) {
+        return employeeService.deleteDocumentByUserId(id);
+    }
+
+    @PostMapping("/restore-document/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Employee restoreDocumentByUserId(@PathVariable Integer id) {
+        return employeeService.restoreDocumentByUserId(id);
+    }
+
 
     @PostMapping("/users/jpa")
     @ResponseStatus(HttpStatus.CREATED)

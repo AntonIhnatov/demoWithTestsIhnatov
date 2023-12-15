@@ -1,9 +1,8 @@
 package com.example.demowithtests.dto;
 
+import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.util.annotations.dto.BlockedEmailDomains;
-import com.example.demowithtests.util.annotations.dto.NameNoNumbersFormed;
-import com.example.demowithtests.util.annotations.dto.NameNotAllowedFormed;
 import com.example.demowithtests.util.annotations.dto.ValidName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,7 +41,10 @@ public record EmployeeSaveDto(
         Gender gender,
 
         @Valid
-        Set<AddressDto> addresses) {
+        Set<AddressDto> addresses,
+        @Schema(description = "Document information of an employee.")
+        Document document
+        ) {
 
     public EmployeeSaveDto(Integer id,
                            String name,
@@ -50,7 +52,8 @@ public record EmployeeSaveDto(
                            String email,
                            Date startDate,
                            Gender gender,
-                           Set<AddressDto> addresses) {
+                           Set<AddressDto> addresses,
+                           Document document) {
 
         this.id = id;
         this.name = name;
@@ -59,6 +62,7 @@ public record EmployeeSaveDto(
         this.startDate = startDate != null ? startDate : Date.from(Instant.now());
         this.gender = gender;
         this.addresses = addresses != null ? addresses : new HashSet<>();
+        this.document = document;
 
     }
 }

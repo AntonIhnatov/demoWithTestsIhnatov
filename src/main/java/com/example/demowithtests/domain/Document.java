@@ -1,10 +1,11 @@
 package com.example.demowithtests.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -31,7 +32,14 @@ public final class Document {
 
     @ToString.Exclude
     @OneToOne(mappedBy = "document")
+    @JsonIgnore
     private Employee employee;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = Boolean.FALSE;
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentHistory> history = new ArrayList<>();
 
     /*@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")

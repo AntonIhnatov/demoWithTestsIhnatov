@@ -1,9 +1,12 @@
 package com.example.demowithtests.service;
 
+import com.example.demowithtests.domain.ActionType;
+import com.example.demowithtests.domain.Document;
+import com.example.demowithtests.domain.DocumentHistory;
 import com.example.demowithtests.domain.Employee;
-import com.example.demowithtests.domain.Gender;
+import com.example.demowithtests.repository.DocumentRepository;
 import com.example.demowithtests.repository.EmployeeRepository;
-import com.example.demowithtests.service.emailSevice.EmailSenderService;
+import com.example.demowithtests.service.emailService.EmailSenderService;
 import com.example.demowithtests.util.annotations.entity.ActivateCustomAnnotations;
 import com.example.demowithtests.util.annotations.entity.Name;
 import com.example.demowithtests.util.annotations.entity.ToLowerCase;
@@ -20,8 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @AllArgsConstructor
@@ -30,10 +35,80 @@ public class EmployeeServiceBean implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EmailSenderService emailSenderService;
+    private final DocumentRepository documentRepository;
+
+    @Override
+    public void addDocumentAndHistory(Employee employee, Document document) {
+
+        Document savedDocument = documentRepository.save(document);
+
+        DocumentHistory historyEntry = new DocumentHistory();
+        historyEntry.setTimestamp(LocalDateTime.now());
+        historyEntry.setActionType(ActionType.ADDED);
+        historyEntry.setDocument(savedDocument);
+        savedDocument.getHistory().add(historyEntry);
+
+        employee.setDocument(savedDocument);
+    }
+
+    //    @Override
+//    public Employee deleteDocumentByUserId(Integer id) {
+//        return employeeRepository.findById(id).map(entity ->{
+//            entity.getDocument().setIsDeleted(Boolean.TRUE);
+//            entity.getDocument().setDeleteDate(LocalDateTime.now());
+//            return employeeRepository.save(entity);
+//        }).orElseThrow(() ->new EntityNotFoundException("Employee not found with id " + id));
+//    }
+    @Override
+    public Employee deleteDocumentByUserId(Integer id) {
+        return employeeRepository.findById(id).map(entity -> {
+            Document document = entity.getDocument();
+            if (document != null) {
+                // Создаем новую запись в истории
+                DocumentHistory historyEntry = new DocumentHistory();
+                historyEntry.setTimestamp(LocalDateTime.now());
+                historyEntry.setActionType(ActionType.REMOVED);
+                historyEntry.setDocument(document);
+                document.getHistory().add(historyEntry);
+
+                // Отмечаем документ как удаленный
+                document.setIsDeleted(Boolean.TRUE);
+            }
+
+            // Сохраняем изменения
+            return employeeRepository.save(entity);
+        }).orElseThrow(() -> new EntityNotFoundException("Employee not found with id " + id));
+    }
+
+    @Override
+    public Employee restoreDocumentByUserId(Integer id) {
+        return employeeRepository.findById(id).map(entity -> {
+            Document document = entity.getDocument();
+            if (document != null) {
+                // Создаем новую запись в истории
+                DocumentHistory historyEntry = new DocumentHistory();
+                historyEntry.setTimestamp(LocalDateTime.now());
+                historyEntry.setActionType(ActionType.RESTORED);
+                historyEntry.setDocument(document);
+                document.getHistory().add(historyEntry);
+
+                // Отмечаем документ как восстановленный
+                document.setIsDeleted(Boolean.TRUE);
+
+                // Отмечаем документ как не удаленный
+                document.setIsDeleted(Boolean.FALSE);
+
+            }
+
+            // Сохраняем изменения
+            return employeeRepository.save(entity);
+        }).orElseThrow(() -> new EntityNotFoundException("Employee not found with id " + id));
+    }
 
 
     @Override
     @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
+
     // @Transactional(propagation = Propagation.MANDATORY)
     public Employee create(Employee employee) {
         if (employee.getGender() == null) {
