@@ -1,36 +1,49 @@
 package com.example.demowithtests.util.config;
 
+import com.example.demowithtests.domain.SecurityUser;
+import com.example.demowithtests.service.SecurityUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
-public class SecurityConfig {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    //TODO: 30-July-23 Create 2 users for demo
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    private final SecurityUserService securityUserService;
+
+    public SecurityConfig(SecurityUserService securityUserService) {
+        this.securityUserService = securityUserService;
+    }
     @Bean
     public UserDetailsService userDetailsService() {
 
-        var userOne = User.withUsername("user").password("{noop}password").roles("USER").build();
-        var userTwo = User.withUsername("admin").password("{noop}password").roles("USER", "ADMIN").build();
-        return new InMemoryUserDetailsManager(userOne, userTwo);
+        List<SecurityUser> securityUsers = this.securityUserService.getAll();
+        List<UserDetails> managersDetailsList = securityUsers.stream()
+                .map(securityUserEntity -> User.withUsername(securityUserEntity.getUsername())
+                        .password("{noop}password")
+                        .roles(securityUserEntity.getRole())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new InMemoryUserDetailsManager(managersDetailsList);
     }
 
-    // TODO: 30-July-23 Secure the endpoints with HTTP Basic authentication
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
-        return http
-                //HTTP Basic authentication
-                .csrf(AbstractHttpConfigurer::disable)
-
+        return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
@@ -45,4 +58,5 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
     }
+
 }
